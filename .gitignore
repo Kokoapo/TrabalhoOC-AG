@@ -1,0 +1,6 @@
+#Pasta com ambiente virtual python
+venv/
+.conda/
+
+#Pasta vscode
+.vscode/
