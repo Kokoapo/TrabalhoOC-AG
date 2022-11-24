@@ -1,7 +1,4 @@
 from random import randint
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-import numpy as np
 
 # Classe com construtor para criar as Pops
 class Pops:
@@ -71,7 +68,6 @@ def genPops():
         floatY = convertFloat(genY, TAMANHO_INT, TAMANHO_FRAC)
         pop = Pops(genX, genY, fitnessFunc(floatX, floatY))
         main_pops.append(pop)
-        print("Pop " + str(count) + " " + str(main_pops[count].x) + " ", str(main_pops[count].y) + " " + str(main_pops[count].fitness))
         count = count + 1
 
 #Seleciona 5 Pops (Sistema de Ranking) 2 Vezes (Sem Repetições) e usa as 2 Pops selecionadas para serem os Pais
@@ -82,7 +78,7 @@ def selectPops():
     for i in range(2):
         higher_rank = -100
         for j in range(SELECT_NUM):
-            pos = randint(0, 99)
+            pos = randint(0, N_POPS - 1)
             choosen = main_pops[pos]
             if choosen.fitness >= higher_rank and pos != higher_rank_pos[i]:
                 selected[i] = choosen
@@ -100,7 +96,7 @@ def crossingOver(parents):
     y2 = []
 
     cruz = randint(0, 99)
-    if cruz <= TX_CRUZAMENTO:
+    if cruz < TX_CRUZAMENTO:
         for i in range(PONTO_CRUZAMENTO_1):
             x1.append(parents[0].x[i])
             y1.append(parents[0].y[i])
@@ -124,16 +120,16 @@ def crossingOver(parents):
         mutX2 = randint(0, 99)
         mutY1 = randint(0, 99)
         mutY2 = randint(0, 99)
-        if mutX1 <= TX_MUTACAO:
+        if mutX1 < TX_MUTACAO:
             if x1[i] == 0: x1[i] = 1 
             else: x1[i] = 0 
-        if mutY1 <= TX_MUTACAO:
+        if mutY1 < TX_MUTACAO:
             if y1[i] == 0: y1[i] = 1 
             else: y1[i] = 0 
-        if mutX2 <= TX_MUTACAO:
+        if mutX2 < TX_MUTACAO:
             if x2[i] == 0: x2[i] = 1 
             else: x2[i] = 0 
-        if mutY2 <= TX_MUTACAO:
+        if mutY2 < TX_MUTACAO:
             if y2[i] == 0: y2[i] = 1 
             else: y2[i] = 0 
     
@@ -153,7 +149,7 @@ def elitismo():
     for i in range(N_POPS):
         if main_pops[i].fitness > elitPop.fitness: elitPop = main_pops[i]
 
-    elitIndex = randint(0, 49)
+    elitIndex = randint(0, N_POPS - 1)
     next_pops[elitIndex] = elitPop
 
 #Transfere Pops da lista secundária para a lista principal
@@ -163,28 +159,6 @@ def transferPops():
         main_pops.append(next_pops[i])
     next_pops.clear()
 
-#Usa MatPlotLib para fazer um gráfico (Ainda não funcionando)
-def plotFinal():
-    x = []
-    y = []
-    for i in range(N_POPS):
-        x.append(convertFloat(main_pops[i].x, TAMANHO_INT, TAMANHO_FRAC))
-        y.append(convertFloat(main_pops[i].y, TAMANHO_INT, TAMANHO_FRAC))
-                
-
-    fig, ax = plt.subplots()
-    colors = np.random.randint(100, size=(100))
-    sizes = 10 * np.random.randint(100, size=(100))
-    ax.scatter(x, y, c=colors, s=sizes, alpha=0.5, cmap='nipy_spectral')
-
-    ax.set_xlabel('Valor X', fontsize=15)
-    ax.set_ylabel('Valor Y', fontsize=15)
-    ax.set_title('Pops Última Geração')
-
-    plt.show()
-
-    input('')
-
 #Main Method
 #Gera Primeira População e Controla o Número de Vezes que o AG irá rodar
 def main():
@@ -192,23 +166,21 @@ def main():
 
     genPops()
     while count < N_ITERACOES_MAX:
-        print('Geração ' + str(count + 1))
-
         for i in range(int(N_POPS/2)):
             selectPops()
         elitismo()
         transferPops()
 
-        for i in range(N_POPS):
-            print("Pop " + str(i) + " : " + str(main_pops[i].x) + " " + str(main_pops[i].y) + " " + str(main_pops[i].fitness))
-
         count = count + 1
-    
-    #plotFinal() Não Funcionando Ainda
+
+        print('Gerando População ' + str(count) + '...')
+
+    for i in range(N_POPS):
+        print("Pop " + str(i) + " : " + str(main_pops[i].x) + " " + str(main_pops[i].y) + " " + str(main_pops[i].fitness))
 
 # CONSTANTES:
-main_pops = list()
-next_pops = list()
+main_pops = list() #Lista da População Principal
+next_pops = list() #Lista da População Seguinte
 N_POPS = 100  # Número da população
 N_ITERACOES_MAX = 100  # Máximo de iterações
 TX_CRUZAMENTO = 80  # Taxa de cruzamento
